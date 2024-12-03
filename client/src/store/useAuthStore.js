@@ -2,7 +2,7 @@ import {create} from "zustand"
 import {axiosInstance} from "../lib/axios.js";
 
 export const useAuthStore = create((set) => ({
-    token: localStorage.getItem("authToken") || null,
+    isAuthenticated: !!localStorage.getItem("authToken"), // Проверка на начальную аутентификацию
     isLoggingIn: false,
     isSignUp: false,
     error: null,
@@ -27,7 +27,7 @@ export const useAuthStore = create((set) => ({
             const res = await axiosInstance.post("/users/login", credentials);
             const token = res.data.token; // JWT токен из ответа
             localStorage.setItem("authToken", token); // Сохранение токена
-            set({ token, isLoggingIn: false });
+            set({ token, isAuthenticated: true, isLoggingIn: false });
         } catch (error) {
             set({ isLoggingIn: false, error: error.response?.data || error.message });
         }

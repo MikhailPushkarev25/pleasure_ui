@@ -9,7 +9,7 @@ import SettingsPage from "./pages/SettingsPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 
 const App = () => {
-    const { isLoggingIn , isSignUp} = useAuthStore();
+    const { isAuthenticated, isLoggingIn , isSignUp} = useAuthStore();
 
     if (isLoggingIn || isSignUp) {
         return (
@@ -23,14 +23,11 @@ const App = () => {
         <div>
             <Navbar />
             <Routes>
-                {/* Открытые маршруты */}
-                <Route path="/" element={<HomePage />} />
-                <Route path="/signup" element={<SignUpPage />} />
-                <Route path="/login" element={<LoginPage />} />
-
-                {/* Защищенные маршруты */}
+                <Route path="/" element={isAuthenticated ? <HomePage /> : <Navigate to="/signup" />} />
+                <Route path="/signup" element={!isAuthenticated ? <SignUpPage /> : <Navigate to="/" />} />
+                <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" />} />
                 <Route path="/settings" element={<SettingsPage />}/>
-                <Route path="/profile" element={<ProfilePage />}/>
+                <Route path="/profile" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />}/>
             </Routes>
         </div>
     );
