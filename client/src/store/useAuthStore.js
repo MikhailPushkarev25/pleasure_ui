@@ -1,5 +1,6 @@
 import {create} from "zustand"
 import {axiosInstance} from "../lib/axios.js";
+import toast from "react-hot-toast";
 
 export const useAuthStore = create((set) => ({
     isAuthenticated: !!localStorage.getItem("authToken"), // Проверка на начальную аутентификацию
@@ -7,16 +8,15 @@ export const useAuthStore = create((set) => ({
     isSignUp: false,
     error: null,
 
-    // Регистрация пользователя
-    register: async (userData) => {
+    signup: async (userData) => {
         set({ isSignUp: true, error: null });
         try {
             const res = await axiosInstance.post("/users/register", userData);
-            set({ isSignUp: false });
-            return res.data; // Успешное сообщение
+            toast.success(res.data); // Успешное сообщение
         } catch (error) {
-            set({ isSignUp: false, error: error.response?.data || error.message });
-            throw error;
+            toast.error(error.response?.data?.message || "Ошибка при регистрации");
+        } finally {
+            set({ isSignUp: false });
         }
     },
 
