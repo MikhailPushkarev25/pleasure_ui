@@ -2,11 +2,10 @@ import {create} from "zustand"
 import {axiosInstance} from "../lib/axios.js";
 
 export const useAuthStore = create((set) => ({
-    authUser: null, // Текущий пользователь
-    token: null, // JWT токен
-    isSignUp: false, // Флаг регистрации
-    isLoggingIn: false, // Флаг входа
-    error: null, // Ошибки
+    token: localStorage.getItem("authToken") || null,
+    isLoggingIn: false,
+    isSignUp: false,
+    error: null,
 
     // Регистрация пользователя
     register: async (userData) => {
@@ -26,12 +25,9 @@ export const useAuthStore = create((set) => ({
         set({ isLoggingIn: true, error: null });
         try {
             const res = await axiosInstance.post("/users/login", credentials);
-            const token = res.data; // JWT токен из ответа
+            const token = res.data.token; // JWT токен из ответа
             localStorage.setItem("authToken", token); // Сохранение токена
             set({ token, isLoggingIn: false });
-
-            // После логина получить данные пользователя
-            await useAuthStore.getState().checkAuth();
         } catch (error) {
             set({ isLoggingIn: false, error: error.response?.data || error.message });
         }
@@ -40,6 +36,6 @@ export const useAuthStore = create((set) => ({
     // Выход из системы
     logout: () => {
         localStorage.removeItem("authToken");
-        set({ authUser: null, token: null });
+        set({ token: null });
     },
 }));
