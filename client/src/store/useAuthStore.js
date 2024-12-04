@@ -3,18 +3,22 @@ import {axiosInstance} from "../lib/axios.js";
 import toast from "react-hot-toast";
 
 export const useAuthStore = create((set) => ({
-    isAuthenticated: !!localStorage.getItem("authToken"), // Проверка на начальную аутентификацию
+    isRegister: false,
+    isAuthenticated: false,
     isLoggingIn: false,
     isSignUp: false,
     error: null,
+
+    resetRegister: () => set({ isRegister: false }),
 
     signup: async (userData) => {
         set({ isSignUp: true, error: null });
         try {
             const res = await axiosInstance.post("/users/register", userData);
-            toast.success(res.data); // Успешное сообщение
+            set({ isRegister: true });
+            return true;
         } catch (error) {
-            toast.error(error.response?.data?.message || "Ошибка при регистрации");
+            return false;
         } finally {
             set({ isSignUp: false });
         }
@@ -22,20 +26,22 @@ export const useAuthStore = create((set) => ({
 
     // Логин пользователя
     login: async (credentials) => {
-        set({ isLoggingIn: true, error: null });
+        set({ isLoggingIn: true, error: null});
         try {
             const res = await axiosInstance.post("/users/login", credentials);
             const token = res.data.token; // JWT токен из ответа
             localStorage.setItem("authToken", token); // Сохранение токена
-            set({ token, isAuthenticated: true, isLoggingIn: false });
+            set({ token, isAuthenticated: true });
         } catch (error) {
             set({ isLoggingIn: false, error: error.response?.data || error.message });
+        } finally {
+            set({ isLoggingIn: false });
         }
     },
 
     // Выход из системы
     logout: () => {
         localStorage.removeItem("authToken");
-        set({ token: null });
+        set({ token: null, isAuthenticated: false });
     },
 }));

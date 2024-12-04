@@ -1,5 +1,5 @@
 import Navbar from "./components/Navbar.jsx";
-import {Navigate, Route, Routes} from "react-router-dom";
+import {Navigate, Route, Routes, useNavigate} from "react-router-dom";
 import HomePage from "./pages/HomePage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
@@ -10,7 +10,7 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import {Toaster} from "react-hot-toast";
 
 const App = () => {
-    const { isAuthenticated, isLoggingIn , isSignUp} = useAuthStore();
+    const { isRegister, isAuthenticated, isLoggingIn , isSignUp} = useAuthStore();
 
     if (isLoggingIn || isSignUp) {
         return (
@@ -19,18 +19,27 @@ const App = () => {
             </div>
         );
     }
-
+    console.log("result _> " + isRegister)
     return (
         <div>
             <Navbar />
             <Routes>
+                {/* Главная страница доступна только для авторизованных пользователей */}
                 <Route path="/" element={isAuthenticated ? <HomePage /> : <Navigate to="/signup" />} />
-                <Route path="/signup" element={!isAuthenticated ? <SignUpPage /> : <Navigate to="/" />} />
+
+                {/* Страница регистрации доступна только для незарегистрированных пользователей */}
+                <Route path="/signup" element={!isRegister ? <SignUpPage /> : <Navigate to="/login" />} />
+
+                {/* Страница логина доступна только для незарегистрированных пользователей */}
                 <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" />} />
-                <Route path="/settings" element={<SettingsPage />}/>
-                <Route path="/profile" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />}/>
+
+                {/* Страница настроек доступна всегда */}
+                <Route path="/settings" element={<SettingsPage />} />
+
+                {/* Страница профиля доступна только для авторизованных пользователей */}
+                <Route path="/profile" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />} />
             </Routes>
-            <Toaster/>
+            <Toaster />
         </div>
     );
 };
