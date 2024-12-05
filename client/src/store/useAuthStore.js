@@ -1,6 +1,7 @@
 import {create} from "zustand"
 import {axiosInstance} from "../lib/axios.js";
 import toast from "react-hot-toast";
+import {jwtDecode} from "jwt-decode";
 
 export const useAuthStore = create((set) => ({
     isRegister: false,
@@ -8,6 +9,9 @@ export const useAuthStore = create((set) => ({
     isLoggingIn: false,
     isSignUp: false,
     error: null,
+    isUpdatingProfile: false,
+    token: null,
+    userProfile: null,
 
     resetRegister: () => set({ isRegister: false }),
 
@@ -29,9 +33,10 @@ export const useAuthStore = create((set) => ({
         set({ isLoggingIn: true, error: null});
         try {
             const res = await axiosInstance.post("/users/login", credentials);
-            const token = res.data.token; // JWT токен из ответа
+            const token = res.data; // JWT токен из ответа
             localStorage.setItem("authToken", token); // Сохранение токена
-            set({ token, isAuthenticated: true });
+            const userProfile = jwtDecode(token);
+            set({ token, userProfile, isAuthenticated: true });
         } catch (error) {
             set({ isLoggingIn: false, error: error.response?.data || error.message });
         } finally {
@@ -42,6 +47,8 @@ export const useAuthStore = create((set) => ({
     // Выход из системы
     logout: () => {
         localStorage.removeItem("authToken");
-        set({ token: null, isAuthenticated: false });
+        set({ token: null, userProfile: null, isAuthenticated: false });
     },
+
+    updatingProfile: async(data) => {},
 }));

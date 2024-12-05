@@ -1,5 +1,5 @@
 import Navbar from "./components/Navbar.jsx";
-import {Navigate, Route, Routes, useNavigate} from "react-router-dom";
+import {Navigate, Route, Routes} from "react-router-dom";
 import HomePage from "./pages/HomePage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
@@ -19,7 +19,6 @@ const App = () => {
             </div>
         );
     }
-    console.log("result _> " + isRegister)
     return (
         <div>
             <Navbar />
